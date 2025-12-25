@@ -27,18 +27,44 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking createBooking(Booking booking) {
-        boolean conflictExist = bookingRepository.existsByRoomNameAndDateAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-                booking.getRoomName(),
-                booking.getDate(),
-                booking.getStartTime(),
-                booking.getEndTime()
-        );
+        LocalDate today = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+        LocalDate maxDate = today.plusMonths(1);
+
+        // 1. Check for past date
+        if (booking.getDate().isBefore(today)) {
+            throw new IllegalArgumentException("Cannot book past dates");
+        }
+
+        if (booking.getDate().isAfter(maxDate)) {
+            throw new IllegalArgumentException("Cannot book more than 1 month in advance");
+        }
+        // 2. Check for pastTime if booking is for today
+        if (booking.getDate().isEqual(today) &&
+                !booking.getStartTime().isAfter(nowTime.plusMinutes(10))) { // optional buffer
+            throw new IllegalArgumentException("Booking must be at least 10 minutes in the future");
+        }
+
+        // 3. Existing validation
+        if (!booking.getEndTime().isAfter(booking.getStartTime())) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+
+        boolean conflictExist =
+                bookingRepository.existsByBoardroom_IdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                        booking.getBoardroom().getId(),
+                        booking.getDate(),
+                        booking.getEndTime(),
+                        booking.getStartTime()
+                );
 
         if (conflictExist) {
             throw new BookingConflictException("This room is already booked for the selected time.");
         }
+
         return bookingRepository.save(booking);
     }
+
 
     @Override
     public List<Booking> getAllBookings() {
@@ -60,41 +86,52 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getBookingsByDate(LocalDate date) {
-        return bookingRepository.findBookingByDate(date);
+    public List<Booking> getBookingsByRoom(Long roomId) {
+        return bookingRepository.findByBoardroom_Id(roomId);
     }
 
     @Override
-    public List<Booking> getBookingsByStartTime(LocalTime startTime) {
-        return bookingRepository.findBookingByStartTime(startTime);
-    }
+    public Booking updateBooking(Long id, Booking bookingRequest) {
 
-    @Override
-    public List<Booking> getBookingsByEndTime(LocalTime endTime) {
-        return bookingRepository.findBookingByEndTime(endTime);
-    }
-
-    @Override
-    public long countTomorrowMeetings() {
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        return bookingRepository.countTomorrowMeetings(tomorrow);
-    }
-
-    @Override
-    public Booking updateBooking(Long id, Booking booking) {
         Booking existingBooking = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found by id: " + id));
+                .orElseThrow(() -> new RuntimeException(
+                        "Booking not found by id: " + id));
 
-        existingBooking.setDate(booking.getDate());
-        existingBooking.setDepartment(booking.getDepartment());
-        existingBooking.setPurpose(booking.getPurpose());
-        existingBooking.setRoomName(booking.getRoomName());
-        existingBooking.setStartTime(booking.getStartTime());
-        existingBooking.setEndTime(booking.getEndTime());
-        existingBooking.setUser(booking.getUser());
-        existingBooking.setStatus(booking.getStatus());
+        if (!bookingRequest.getEndTime().isAfter(bookingRequest.getStartTime())) {
+            throw new IllegalArgumentException(
+                    "End time must be after start time");
+        }
+
+        if (bookingRequest.getBoardroom() != null) {
+            existingBooking.setBoardroom(
+                    bookingRequest.getBoardroom()
+            );
+        }
+
+        existingBooking.setDate(bookingRequest.getDate());
+        existingBooking.setStartTime(bookingRequest.getStartTime());
+        existingBooking.setEndTime(bookingRequest.getEndTime());
+        existingBooking.setPurpose(bookingRequest.getPurpose());
+        existingBooking.setStatus(bookingRequest.getStatus());
+
+        boolean conflictExist =
+                bookingRepository.existsByBoardroom_IdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(
+                        existingBooking.getBoardroom().getId(),
+                        existingBooking.getDate(),
+                        existingBooking.getEndTime(),
+                        existingBooking.getStartTime(),
+                        existingBooking.getId()
+                );
+
+        if (conflictExist) {
+            throw new BookingConflictException(
+                    "This room is already booked for the selected time."
+            );
+        }
+
         return bookingRepository.save(existingBooking);
     }
+
 
     @Override
     public void deleteBooking(Long id) {

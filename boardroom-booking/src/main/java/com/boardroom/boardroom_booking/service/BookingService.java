@@ -12,13 +12,10 @@ public interface BookingService {
     Booking createBooking(Booking booking);
 
     List<Booking> getAllBookings();
+
     Optional<Booking> getBookingById(Long id);
 
-    List<Booking> getBookingsByDate(LocalDate date);
-    List<Booking> getBookingsByStartTime(LocalTime startTime);
-    List<Booking> getBookingsByEndTime(LocalTime endTime);
-
-    long countTomorrowMeetings();
+    List<Booking> getBookingsByRoom(Long roomId);
 
     List<Booking> getBookingsByDepartment(Long departmentId);
 
@@ -29,10 +26,6 @@ public interface BookingService {
 
     void deleteBooking(Long id);
 
-
-//    Test
-void updateStatuses();
-
-
+    void updateStatuses();
 
 }

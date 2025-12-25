@@ -13,18 +13,24 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findBookingByDate(LocalDate date);
 
-    List<Booking> findBookingByStartTime(LocalTime date);
+    List<Booking> findByBoardroom_Id(Long roomId);
 
-    List<Booking> findBookingByEndTime(LocalTime date);
-
-    boolean existsByRoomNameAndDateAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-            String roomName,
+    boolean existsByBoardroom_IdAndDateAndStartTimeLessThanAndEndTimeGreaterThan(
+            Integer boardroomId,
             LocalDate date,
-            LocalTime startTime,
-            LocalTime endTime
+            LocalTime endTime,
+            LocalTime startTime
     );
+
+    boolean existsByBoardroom_IdAndDateAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(
+            Integer boardroomId,
+            LocalDate date,
+            LocalTime endTime,
+            LocalTime startTime,
+            Long excludeId
+    );
+
 
     List<Booking> findByDepartmentId(Long departmentId);
 
@@ -57,13 +63,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             """)
     long countMyUpcomingBookings(@Param("userId") Long userId);
 
-    @Query("""
-                SELECT DISTINCT b.roomName 
-                FROM Booking b 
-                WHERE b.date = CURRENT_DATE
-                AND b.status <> 'CANCELLED'
-            """)
-    List<String> findBookedRoomsToday();
+//    @Query("""
+//                SELECT DISTINCT b.roomName
+//                FROM Booking b
+//                WHERE b.date = CURRENT_DATE
+//                AND b.status <> 'CANCELLED'
+//            """)
+//    List<String> findBookedRoomsToday();
 
     @Query("""
                 SELECT COUNT(b)

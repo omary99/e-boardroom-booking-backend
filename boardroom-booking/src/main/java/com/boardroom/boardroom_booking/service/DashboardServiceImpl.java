@@ -33,8 +33,8 @@ public class DashboardServiceImpl implements DashboardService {
 
         // Available boardrooms today
         long totalRooms = boardroomRepository.count();
-        List<String> bookedToday = bookingRepository.findBookedRoomsToday();
-        long available = totalRooms - bookedToday.size();
+//        List<String> bookedToday = bookingRepository.findBookedRoomsToday();
+//        long available = totalRooms - bookedToday.size();
 
         long cancelledToday = bookingRepository.countCancelledBookingsToday();
 

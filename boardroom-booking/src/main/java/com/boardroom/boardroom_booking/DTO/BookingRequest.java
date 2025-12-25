@@ -6,32 +6,35 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class BookingRequest {
-    public String roomName;
-    public LocalDate date;
-    public LocalTime startTime;
-    public LocalTime endTime;
-    public String purpose;
-    public BookingStatus status;
-    public Long userId;
+    private Long boardroomId;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private String purpose;
+    private BookingStatus status;
+    private Long userId;
+    private Long departmentId;
 
     public BookingRequest() {
     }
 
-    public BookingRequest(String roomName, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, Long userId, Long departmentId) {
-        this.roomName = roomName;
+    public BookingRequest(Long boardroomId, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, BookingStatus status, Long userId, Long departmentId) {
+        this.boardroomId = boardroomId;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.purpose = purpose;
+        this.status = status;
         this.userId = userId;
+        this.departmentId = departmentId;
     }
 
-    public String getRoomName() {
-        return roomName;
+    public Long getBoardroomId() {
+        return boardroomId;
     }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
+    public void setBoardroomId(Long boardroomId) {
+        this.boardroomId = boardroomId;
     }
 
     public LocalDate getDate() {
@@ -66,6 +69,14 @@ public class BookingRequest {
         this.purpose = purpose;
     }
 
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -74,4 +85,11 @@ public class BookingRequest {
         this.userId = userId;
     }
 
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
 }

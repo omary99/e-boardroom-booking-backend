@@ -9,14 +9,15 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings",
+        indexes = {@Index(name = "idx_booking_boardroom_date", columnList = "boardroom_id, date"),
+                    @Index(name = "idx_booking_date", columnList = "date")})
+
 public class Booking {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private String roomName;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -33,19 +34,22 @@ public class Booking {
     @Column(nullable = false)
     private BookingStatus status = BookingStatus.BOOKED;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "department_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardroom_id", nullable = false)
+    private Boardroom boardroom;
 
     public Booking() {
     }
 
-    public Booking(String roomName, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, BookingStatus status, User user, Department department) {
-        this.roomName = roomName;
+    public Booking(LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, BookingStatus status, User user, Department department, Boardroom boardroom) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -53,11 +57,11 @@ public class Booking {
         this.status = status;
         this.user = user;
         this.department = department;
+        this.boardroom = boardroom;
     }
 
-    public Booking(Long id, String roomName, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, BookingStatus status, User user, Department department) {
+    public Booking(Long id, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose, BookingStatus status, User user, Department department, Boardroom boardroom) {
         this.id = id;
-        this.roomName = roomName;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -65,6 +69,7 @@ public class Booking {
         this.status = status;
         this.user = user;
         this.department = department;
+        this.boardroom = boardroom;
     }
 
     public Long getId() {
@@ -73,14 +78,6 @@ public class Booking {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getRoomName() {
-        return roomName;
-    }
-
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
     }
 
     public LocalDate getDate() {
@@ -137,5 +134,13 @@ public class Booking {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public Boardroom getBoardroom() {
+        return boardroom;
+    }
+
+    public void setBoardroom(Boardroom boardroom) {
+        this.boardroom = boardroom;
     }
 }
