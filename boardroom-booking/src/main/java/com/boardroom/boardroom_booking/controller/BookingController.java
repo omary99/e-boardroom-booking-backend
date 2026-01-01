@@ -11,10 +11,13 @@ import com.boardroom.boardroom_booking.service.BookingService;
 import com.boardroom.boardroom_booking.service.DepartmentService;
 import com.boardroom.boardroom_booking.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -142,21 +145,33 @@ public class BookingController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateBooking(
+    public ResponseEntity<Map<String, String>> updateBooking(
             @PathVariable Long id,
             @RequestBody BookingRequest request) {
 
         Booking existing = bookingService.getBookingById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Booking not found"));
 
         User user = userService.getUserById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"));
 
         Department department = departmentService.getDepartmentById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Department not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Department not found"));
 
-        Boardroom boardroom = boardRoomService.getBoardroomById(request.getBoardroomId().intValue())
-                .orElseThrow(() -> new RuntimeException("Boardroom not found"));
+        Boardroom boardroom = boardRoomService
+                .getBoardroomById(request.getBoardroomId().intValue())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Boardroom not found"));
+
+        if (!request.getEndTime().isAfter(request.getStartTime())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "End time must be after start time"
+            );
+        }
 
         existing.setBoardroom(boardroom);
         existing.setDate(request.getDate());
@@ -167,14 +182,11 @@ public class BookingController {
         existing.setUser(user);
         existing.setDepartment(department);
 
-        if (!request.getEndTime().isAfter(request.getStartTime())) {
-            throw new IllegalArgumentException("End time must be after start time");
-        }
+        bookingService.updateBooking(id, existing);
 
-        Booking updated = bookingService.updateBooking(id, existing);
-
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(Map.of("message", "Booking is updated successfully"));
     }
+
 
 
     @DeleteMapping("/{id}")
