@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 public class BookingResponseDto {
     private Long id;
-    private String roomName;
+    private BoardroomDto boardroom;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -27,12 +27,12 @@ public class BookingResponseDto {
         this.id = id;
     }
 
-    public String getRoomName() {
-        return roomName;
+    public BoardroomDto getBoardroom() {
+        return boardroom;
     }
 
-    public void setRoomName(String roomName) {
-        this.roomName = roomName;
+    public void setBoardroom(BoardroomDto boardroom) {
+        this.boardroom = boardroom;
     }
 
     public LocalDate getDate() {
@@ -113,6 +113,27 @@ public class BookingResponseDto {
 
         public void setName(String name) {
             this.name = name;
+        }
+    }
+
+    public static class BoardroomDto {
+        private Integer id;
+        private String roomName;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+
+        public void setRoomName(String roomName) {
+            this.roomName = roomName;
         }
     }
 }

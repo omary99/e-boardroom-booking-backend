@@ -8,7 +8,9 @@ import com.boardroom.boardroom_booking.service.BoardRoomService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -61,11 +63,19 @@ public class BoardroomController {
         return ResponseEntity.ok(list);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBoardroom(@PathVariable Integer id) {
-        boardRoomService.deleteBoardroom(id);
-        return ResponseEntity.ok("Boardroom deleted successfully");
+    public ResponseEntity<Map<String, Object>> deleteBoardroom(@PathVariable Integer id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boardRoomService.deleteBoardroom(id);
+            response.put("success", true);
+            response.put("message", "Boardroom deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Cannot delete room. It may have bookings.");
+            return ResponseEntity.status(400).body(response); // Bad request
+        }
     }
 
     // CHANGE STATUS

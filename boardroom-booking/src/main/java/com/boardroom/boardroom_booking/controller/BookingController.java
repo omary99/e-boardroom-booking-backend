@@ -27,7 +27,13 @@ public class BookingController {
     private BookingResponseDto mapToDto(Booking booking) {
         BookingResponseDto dto = new BookingResponseDto();
         dto.setId(booking.getId());
-        dto.setRoomName(booking.getBoardroom().getRoomName());
+
+        BookingResponseDto.BoardroomDto roomDto =
+                new BookingResponseDto.BoardroomDto();
+        roomDto.setId(booking.getBoardroom().getId());
+        roomDto.setRoomName(booking.getBoardroom().getRoomName());
+        dto.setBoardroom(roomDto);
+
         dto.setDate(booking.getDate());
         dto.setStartTime(booking.getStartTime());
         dto.setEndTime(booking.getEndTime());
@@ -91,7 +97,6 @@ public class BookingController {
         return ResponseEntity.ok(list);
     }
 
-
     @GetMapping("/department/{id}")
     public ResponseEntity<List<BookingResponseDto>> getBookingsByDepartment(@PathVariable("id") Long departmentId) {
         if (departmentId == null) {
@@ -115,7 +120,6 @@ public class BookingController {
 
         return ResponseEntity.ok(list);
     }
-
 
     @PostMapping
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest dto) {
@@ -142,7 +146,6 @@ public class BookingController {
 
         return ResponseEntity.ok(bookingService.createBooking(booking));
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, String>> updateBooking(
@@ -186,8 +189,6 @@ public class BookingController {
 
         return ResponseEntity.ok(Map.of("message", "Booking is updated successfully"));
     }
-
-
 
     @DeleteMapping("/{id}")
     public void deleteBooking(@PathVariable Long id) {
