@@ -13,39 +13,20 @@ import java.util.List;
 @Transactional
 public class DashboardServiceImpl implements DashboardService {
     private final BookingRepository bookingRepository;
-    private final BoardroomRepository boardroomRepository;
 
-    public DashboardServiceImpl(BookingRepository bookingRepository, BoardroomRepository boardroomRepository) {
+    public DashboardServiceImpl(BookingRepository bookingRepository) {
         this.bookingRepository = bookingRepository;
-        this.boardroomRepository = boardroomRepository;
     }
 
     @Override
     public DashboardResponse getDashboard(Long userId) {
-        // Count ongoing meetings
         long ongoing = bookingRepository.countOngoingMeetings();
-
-        // Count tomorrow meetings
         long tomorrow = bookingRepository.countByDateExcludingCancelled(LocalDate.now().plusDays(1));
-
-        // Count my upcoming bookings
         long myUpcoming = bookingRepository.countMyUpcomingBookings(userId);
-
-        // Available boardrooms today
-        long totalRooms = boardroomRepository.count();
-//        List<String> bookedToday = bookingRepository.findBookedRoomsToday();
-//        long available = totalRooms - bookedToday.size();
-
         long cancelledToday = bookingRepository.countCancelledBookingsToday();
 
-        // Build response
-        DashboardResponse response = new DashboardResponse();
-        response.setOngoingMeetings(ongoing);
-        response.setTomorrowMeetings(tomorrow);
-        response.setCancelledBookingsToday(cancelledToday);
-        response.setMyUpcomingBookings(myUpcoming);
-
-        return response;
+        return new DashboardResponse(ongoing, tomorrow, cancelledToday, myUpcoming);
     }
+
 }
 

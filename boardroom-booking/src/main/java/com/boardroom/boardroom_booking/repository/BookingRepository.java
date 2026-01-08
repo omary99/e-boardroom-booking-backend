@@ -31,7 +31,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             Long excludeId
     );
 
-
     List<Booking> findByDepartmentId(Long departmentId);
 
     List<Booking> findByUserId(Long userId);
@@ -44,33 +43,31 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             """)
     long countByDateExcludingCancelled(@Param("date") LocalDate date);
 
+    // Ongoing Meetings
     @Query("""
-                SELECT COUNT(b) 
-                FROM Booking b 
-                WHERE b.date = CURRENT_DATE 
-                AND b.startTime <= CURRENT_TIME 
+                SELECT COUNT(b)
+                FROM Booking b
+                WHERE b.date = CURRENT_DATE
+                AND b.startTime <= CURRENT_TIME
                 AND b.endTime >= CURRENT_TIME
                 AND b.status <> 'CANCELLED'
             """)
     long countOngoingMeetings();
 
+    // My upcoming
     @Query("""
-                SELECT COUNT(b) 
-                FROM Booking b 
-                WHERE b.user.id = :userId 
-                AND b.date > CURRENT_DATE
-                AND b.status <> 'CANCELLED'
+                SELECT COUNT(b)
+                FROM Booking b
+                WHERE b.user.id = :userId
+                AND b.status = 'BOOKED'
+                AND (
+                    b.date > CURRENT_DATE
+                    OR (b.date = CURRENT_DATE AND b.startTime > CURRENT_TIME)
+                )
             """)
     long countMyUpcomingBookings(@Param("userId") Long userId);
 
-//    @Query("""
-//                SELECT DISTINCT b.roomName
-//                FROM Booking b
-//                WHERE b.date = CURRENT_DATE
-//                AND b.status <> 'CANCELLED'
-//            """)
-//    List<String> findBookedRoomsToday();
-
+    // Tomorrow bookings
     @Query("""
                 SELECT COUNT(b)
                 FROM Booking b
@@ -79,12 +76,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             """)
     long countTomorrowMeetings(@Param("tomorrow") LocalDate tomorrow);
 
+    // Cancelled bookings
     @Query("""
-    SELECT COUNT(b)
-    FROM Booking b
-    WHERE b.date = CURRENT_DATE
-    AND b.status = 'CANCELLED'
-""")
+                SELECT COUNT(b)
+                FROM Booking b
+                WHERE b.date = CURRENT_DATE
+                AND b.status = 'CANCELLED'
+            """)
     long countCancelledBookingsToday();
 
 }

@@ -2,6 +2,7 @@ package com.boardroom.boardroom_booking.controller;
 
 import com.boardroom.boardroom_booking.DTO.BookingRequest;
 import com.boardroom.boardroom_booking.DTO.BookingResponseDto;
+import com.boardroom.boardroom_booking.EnumData.BookingStatus;
 import com.boardroom.boardroom_booking.model.Boardroom;
 import com.boardroom.boardroom_booking.model.Booking;
 import com.boardroom.boardroom_booking.model.Department;
@@ -188,6 +189,25 @@ public class BookingController {
         bookingService.updateBooking(id, existing);
 
         return ResponseEntity.ok(Map.of("message", "Booking is updated successfully"));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<BookingResponseDto> cancelBooking(@PathVariable Long id) {
+
+        Booking booking = bookingService.getBookingById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Booking not found"));
+
+        if (booking.getStatus() == BookingStatus.ONGOING ||
+                booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Cannot cancel this booking");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        Booking saved = bookingService.updateBooking(id, booking);
+
+        return ResponseEntity.ok(mapToDto(saved));
     }
 
     @DeleteMapping("/{id}")
