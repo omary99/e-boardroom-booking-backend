@@ -3,7 +3,7 @@ spring:
     name: Boardroom-Booking
 
   datasource:
-    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5433/okota_db}
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5433/boardroom_db}
     username:  ${DB_USER:postgres}
     password: ${DB_PASS:Admin123}
     driver-class-name: org.postgresql.Driver

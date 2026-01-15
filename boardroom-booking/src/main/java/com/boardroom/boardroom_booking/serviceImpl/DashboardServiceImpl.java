@@ -1,13 +1,12 @@
-package com.boardroom.boardroom_booking.service;
+package com.boardroom.boardroom_booking.serviceImpl;
 
 import com.boardroom.boardroom_booking.DTO.DashboardResponse;
-import com.boardroom.boardroom_booking.repository.BoardroomRepository;
 import com.boardroom.boardroom_booking.repository.BookingRepository;
+import com.boardroom.boardroom_booking.service.DashboardService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @Transactional

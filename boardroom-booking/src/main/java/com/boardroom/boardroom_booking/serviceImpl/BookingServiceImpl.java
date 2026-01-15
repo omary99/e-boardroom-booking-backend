@@ -1,9 +1,10 @@
-package com.boardroom.boardroom_booking.service;
+package com.boardroom.boardroom_booking.serviceImpl;
 
 import com.boardroom.boardroom_booking.EnumData.BookingStatus;
 import com.boardroom.boardroom_booking.Exception.BookingConflictException;
 import com.boardroom.boardroom_booking.model.Booking;
 import com.boardroom.boardroom_booking.repository.BookingRepository;
+import com.boardroom.boardroom_booking.service.BookingService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;

@@ -1,7 +1,8 @@
-package com.boardroom.boardroom_booking.service;
+package com.boardroom.boardroom_booking.serviceImpl;
 
 import com.boardroom.boardroom_booking.model.Department;
 import com.boardroom.boardroom_booking.repository.DepartmentRepository;
+import com.boardroom.boardroom_booking.service.DepartmentService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class DepartmentServiceImpl implements DepartmentService{
+public class DepartmentServiceImpl implements DepartmentService {
     private final DepartmentRepository departmentRepository;
 
     public DepartmentServiceImpl(DepartmentRepository departmentRepository) {

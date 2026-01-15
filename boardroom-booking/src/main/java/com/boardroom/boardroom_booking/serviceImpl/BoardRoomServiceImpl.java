@@ -1,8 +1,9 @@
-package com.boardroom.boardroom_booking.service;
+package com.boardroom.boardroom_booking.serviceImpl;
 
 import com.boardroom.boardroom_booking.EnumData.BoardroomStatus;
 import com.boardroom.boardroom_booking.model.Boardroom;
 import com.boardroom.boardroom_booking.repository.BoardroomRepository;
+import com.boardroom.boardroom_booking.service.BoardRoomService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class BoardRoomServiceImpl implements BoardRoomService{
+public class BoardRoomServiceImpl implements BoardRoomService {
 
     private final BoardroomRepository boardroomRepository;
 

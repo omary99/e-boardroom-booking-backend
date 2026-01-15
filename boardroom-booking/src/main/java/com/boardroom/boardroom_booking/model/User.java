@@ -5,26 +5,48 @@ import com.boardroom.boardroom_booking.EnumData.UserRole;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String fullName;
+    @Column(nullable = true, unique = true)
+    private String username;
 
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String phoneNumber;
-
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "middle_name")
+    private String middleName;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Column(name = "is_active")
+    private Boolean active = Boolean.TRUE;
+
+    private String gender;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -35,96 +57,120 @@ public class User {
     @JsonIgnore
     private List<Booking> bookings;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role = UserRole.USER;
 
-    public User() {
+    @Column(name = "account_non_expired")
+    private Boolean accountNonExpired;
+
+    @Column(name = "account_non_locked")
+    private Boolean accountNonLocked;
+
+    @Column(name = "credentials_non_expired")
+    private Boolean credentialsNonExpired;
+
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
+
+    private String phoneNumber;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "failed_attempt", columnDefinition = "integer default 0")
+    private int failedAttempt;
+
+    @Column(name = "lock_time")
+    private LocalDateTime lockTime;
+
+    private UUID uuid;
+
+
+
+    //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JsonIgnore
+//    private Set<UserRole> userRoles = new HashSet<>();
+//
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> rolez = new HashSet<>();
+
+    @Transient
+    private List<Long> roles;
+
+    @Transient
+    private String locationName;
+
+    @Transient
+    private Long locationId;
+
+
+    private String fullName;
+
+    @Transient
+    @JsonIgnore
+    private Collection<? extends GrantedAuthority> authorities;
+
+    public List<Long> getRoles() {
+        List<Long> roleList = new ArrayList<>();
+        if(!rolez.isEmpty()){
+            rolez.forEach(role -> {
+                roleList.add(role.getId());
+            });
+        }
+        return roleList;
     }
 
 
-    public User(String fullName, String email, String phoneNumber, String password, Department department, List<Booking> bookings, UserRole role) {
-        this.fullName = fullName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.department = department;
-        this.bookings = bookings;
-        this.role = role;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        active = true;
+        accountNonExpired = true;
+        accountNonLocked = true;
+        credentialsNonExpired = true;
     }
 
-    public User(Long id, String fullName, String email, String phoneNumber, String password, Department department, List<Booking> bookings, UserRole role) {
-        this.id = id;
-        this.fullName = fullName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.department = department;
-        this.bookings = bookings;
-        this.role = role;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
+//    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return userRoles.stream()
+//                .map(userRole -> new SimpleGrantedAuthority("ROLE_" + userRole.getRole().getName()))
+//                .collect(Collectors.toList());
+    // return null;
+    //}
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
     }
 
-    public String getFullName() {
-        return fullName;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
-
-    public List<Booking> getBookings() {
-        return bookings;
-    }
-
-    public void setBookings(List<Booking> bookings) {
-        this.bookings = bookings;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
+    @Override
+    public boolean isEnabled() {
+        return active;
     }
 }

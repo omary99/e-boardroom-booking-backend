@@ -2,7 +2,6 @@ package com.boardroom.boardroom_booking.controller;
 
 import com.boardroom.boardroom_booking.model.User;
 import com.boardroom.boardroom_booking.service.UserService;
-import com.boardroom.boardroom_booking.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
