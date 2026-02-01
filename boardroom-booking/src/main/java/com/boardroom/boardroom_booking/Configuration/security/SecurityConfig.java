@@ -47,8 +47,8 @@ public class SecurityConfig {
                                 "/api/v1/login/**"
                         )
                         .permitAll()
-                        .anyRequest().authenticated())
-                        //.anyRequest().permitAll())
+                        //.anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults());
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

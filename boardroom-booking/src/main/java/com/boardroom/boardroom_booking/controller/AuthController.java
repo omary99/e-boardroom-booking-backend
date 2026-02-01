@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
@@ -72,8 +73,11 @@ public class AuthController {
         String roles = jwtUtil.extractRoles(token);
         long expiresIn = jwtUtil.getExpirationTime(false); // Ensure this method returns the e
         System.out.println("token: "+token);
+
+        Optional<User> userOpt = userRepository.findByUsername(user.getUsername());
+
         auditService.log("USER-MANAGEMENT-SERVICE","Login","User "+user.getUsername()+" logged in",user.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token,refreshToken,"bearer",expiresIn, userDetails.getUsername(),roles));
+        return ResponseEntity.ok(new AuthResponse(token,refreshToken,"bearer",expiresIn, userDetails.getUsername(),roles,userOpt.get().getId()));
     }
 
 //    @GetMapping("/auth/login")
@@ -113,7 +117,9 @@ public class AuthController {
         String roles = jwtUtil.extractRoles(refreshToken);
         String newAccessToken = jwtUtil.generateTokenFromUsername(username,roles ,true);
 
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken,"bearer", jwtUtil.getExpirationTime(false), username, roles));
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken,"bearer", jwtUtil.getExpirationTime(false), username, roles,userOpt.get().getId()));
     }
 
     @GetMapping("/auth/userinfo")
