@@ -140,50 +140,6 @@ public class AuthController {
         return fullName.toString();
     }
 
-
-
-//    private String generateFullName(User user) {
-//        StringBuilder fullName = new StringBuilder();
-//        if (user.getFirstName() != null) fullName.append(user.getFirstName());
-//        if (user.getMiddleName() != null && !user.getMiddleName().isBlank())
-//            fullName.append(" ").append(user.getMiddleName());
-//        if (user.getSurname() != null) fullName.append(" ").append(user.getSurname());
-//        return fullName.toString();
-//    }
-//
-//    @PostMapping("/auth/register")
-//    public ResponseEntity<?> register(@RequestBody User user) {
-//
-//        String email = user.getEmail().trim();
-//        user.setEmail(email);
-//
-//        // Set username = email
-//        user.setUsername(email);
-//
-//        user.setFullName(generateFullName(user));
-//
-//        if (userRepository.existsByEmail(email)) {
-//            return ResponseEntity
-//                    .status(HttpStatus.BAD_REQUEST)
-//                    .body("Email already exists");
-//        }
-//
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//
-//
-//        if (user.getDepartment() != null && user.getDepartment().getId() != null) {
-//            Department dept = departmentRepository.findById(user.getDepartment().getId())
-//                    .orElseThrow(() -> new RuntimeException("Department not found"));
-//            user.setDepartment(dept);
-//        }
-//
-//        userRepository.save(user);
-//
-////        return ResponseEntity.ok("User registered successfully!");
-//        return ResponseEntity.ok(Map.of("message", "User registered successfully!"));
-//    }
-
-
     @PostMapping("/auth/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         System.out.println("New: " + request.getUsername());
@@ -203,7 +159,8 @@ public class AuthController {
         long expiresIn = jwtUtil.getExpirationTime(false); // Ensure this method returns the e
         System.out.println("token: " + token);
         auditService.log("USER-MANAGEMENT-SERVICE", "Login", "User " + user.getUsername() + " logged in", user.getUsername());
-        return ResponseEntity.ok(new AuthResponse(token, refreshToken, "bearer", expiresIn, userDetails.getUsername(), roles));
+//        I commented hapa
+//        return ResponseEntity.ok(new AuthResponse(token, refreshToken, "bearer", expiresIn, userDetails.getUsername(), roles));
         System.out.println("token: "+token);
 
         Optional<User> userOpt = userRepository.findByUsername(user.getUsername());
@@ -229,37 +186,14 @@ public class AuthController {
         String roles = jwtUtil.extractRoles(refreshToken);
         String newAccessToken = jwtUtil.generateTokenFromUsername(username, roles, true);
 
-        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken, "bearer", jwtUtil.getExpirationTime(false), username, roles));
+//        I commented hapa
+//        return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken, "bearer", jwtUtil.getExpirationTime(false), username, roles));
         Optional<User> userOpt = userRepository.findByUsername(username);
 
         return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken,"bearer", jwtUtil.getExpirationTime(false), username, roles,userOpt.get().getId()));
     }
 
-//    @GetMapping("/auth/userinfo")
-//    public AuthResult<?> user(Authentication authentication) {
-//
-//        CustomUserDetails userDetails =
-//                (CustomUserDetails) authentication.getPrincipal();
-//
-//        User user = userDetails.getUser();
-//
-//        return new AuthResult<>(
-//                new UserInfoDTO(
-//                        user.getId(),
-//                        user.getFullName(),
-//                        user.getEmail(),
-//                        user.getDepartment() != null
-//                                ? user.getDepartment().getName()
-//                                : null,
-//                        user.getRolez().stream().map(Role::getName).toList()
-//                ),
-//                "",
-//                false,
-//                userDetails.getAuthorities()
-//        );
-//    }
-
-    @GetMapping("/auth/userinfo")
+   @GetMapping("/auth/userinfo")
     public AuthResult<?> user(Authentication authentication) {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
