@@ -1,9 +1,7 @@
 package com.boardroom.boardroom_booking.model;
 
-import com.boardroom.boardroom_booking.EnumData.BoardroomStatus;
-import com.boardroom.boardroom_booking.EnumData.UserRole;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +29,7 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "first_name")
@@ -56,7 +54,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Booking> bookings;
-
 
     @Column(name = "account_non_expired")
     private Boolean accountNonExpired;
@@ -89,12 +86,6 @@ public class User implements UserDetails {
 
     private UUID uuid;
 
-
-
-    //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JsonIgnore
-//    private Set<UserRole> userRoles = new HashSet<>();
-//
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -112,7 +103,6 @@ public class User implements UserDetails {
     @Transient
     private Long locationId;
 
-
     private String fullName;
 
     @Transient
@@ -129,8 +119,6 @@ public class User implements UserDetails {
         return roleList;
     }
 
-
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -145,14 +133,6 @@ public class User implements UserDetails {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return userRoles.stream()
-//                .map(userRole -> new SimpleGrantedAuthority("ROLE_" + userRole.getRole().getName()))
-//                .collect(Collectors.toList());
-    // return null;
-    //}
 
     @Override
     public boolean isAccountNonExpired() {

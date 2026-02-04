@@ -11,6 +11,7 @@ public class UserDto {
     private String firstName;
     private String middleName;
     private String surname;
+    private String fullName;
     private String gender;
     private String email;
     private String password;
@@ -18,6 +19,8 @@ public class UserDto {
     private String mobileNumber;
     private String signature;
     private List<Long> roles;
-//    private String locationUuid;
 
+
+    private Long departmentId;
+    private String departmentName;
 }
