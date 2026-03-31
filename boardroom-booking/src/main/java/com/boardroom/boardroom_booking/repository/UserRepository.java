@@ -4,6 +4,7 @@ import com.boardroom.boardroom_booking.model.Department;
 import com.boardroom.boardroom_booking.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,6 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long>{
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
     List<User> findByDepartmentId(Long departmentId);
+
+    List<User> findByActiveTrue(Sort sort);
+
+    List<User> findByActiveFalse();
 
     @Query(value = "SELECT * FROM users u WHERE u.uuid = :uuid", nativeQuery = true)
     Optional<User> findFirstByUuid(UUID uuid);

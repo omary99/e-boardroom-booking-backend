@@ -1,12 +1,11 @@
 package com.boardroom.boardroom_booking.serviceImpl;
 
 import com.boardroom.boardroom_booking.Configuration.security.CurrentUserUtil;
+import com.boardroom.boardroom_booking.DTO.UpdateUserDto;
 import com.boardroom.boardroom_booking.audit.service.AuditService;
+import com.boardroom.boardroom_booking.model.Department;
 import com.boardroom.boardroom_booking.model.User;
-import com.boardroom.boardroom_booking.repository.PermissionRepository;
-import com.boardroom.boardroom_booking.repository.RoleRepository;
-import com.boardroom.boardroom_booking.repository.UserRepository;
-import com.boardroom.boardroom_booking.repository.UserRoleRepository;
+import com.boardroom.boardroom_booking.repository.*;
 import com.boardroom.boardroom_booking.service.UserService;
 import com.boardroom.boardroom_booking.utils.GlobalMethod;
 import jakarta.transaction.Transactional;
@@ -35,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final PermissionRepository permissionRepository;
     private final AuditService auditService;
+    private final DepartmentRepository departmentRepository;
 
     @Autowired
     private CurrentUserUtil currentUserUtil;
@@ -69,19 +69,47 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    @Override
-    public User updateUser(Long id, User user) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("User not found by id: " + id));
+//    @Override
+//    public User updateUser(Long id, User user) {
+//        User existingUser = userRepository.findById(id)
+//                .orElseThrow(()->new RuntimeException("User not found by id: " + id));
+//
+//        existingUser.setFullName(user.getFullName());
+//        existingUser.setPhoneNumber(user.getPhoneNumber());
+//        existingUser.setEmail(user.getEmail());
+//        existingUser.setBookings(user.getBookings());
+//        if (user.getDepartment() != null && user.getDepartment().getId() != null) {
+//            Department dept = departmentRepository.findById(user.getDepartment().getId())
+//                    .orElseThrow(() -> new RuntimeException("Department not found"));
+//
+//            existingUser.setDepartment(dept);
+//        }
+//
+//        return userRepository.save(existingUser);
+//    }
 
-        existingUser.setFullName(user.getFullName());
-        existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setBookings(user.getBookings());
-        existingUser.setDepartment(user.getDepartment());
+
+    public User updateUser(Long id, UpdateUserDto dto) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existingUser.setFirstName(dto.getFirstName());
+        existingUser.setMiddleName(dto.getMiddleName());
+        existingUser.setSurname(dto.getSurname());
+        existingUser.setEmail(dto.getEmail());
+        existingUser.setPhoneNumber(dto.getPhoneNumber());
+        existingUser.setGender(dto.getGender());
+
+        if (dto.getDepartmentId() != null) {
+            Department dept = departmentRepository.findById(dto.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found"));
+
+            existingUser.setDepartment(dept);
+        }
 
         return userRepository.save(existingUser);
     }
+
 
     @Override
     public UserDetails findByUsername(String name) throws UsernameNotFoundException {
@@ -121,5 +149,36 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not find by id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public User deactivateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found by id: " + id));
+
+        user.setActive(false);
+
+        return userRepository.save(user);
+    }
+
+
+    @Override
+    public User activateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found by id: " + id));
+
+        user.setActive(true);
+
+        return userRepository.save(user);
+    }
+
+    @Override
+    public List<User> getActiveUsers() {
+        return userRepository.findByActiveTrue(Sort.by(Sort.Direction.DESC, "id"));
+    }
+
+    @Override
+    public List<User> getInactiveUsers() {
+        return userRepository.findByActiveFalse();
     }
 }

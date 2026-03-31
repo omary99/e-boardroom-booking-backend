@@ -16,11 +16,14 @@ public class UserDto {
     private String email;
     private String password;
     private String confirmPassword;
-    private String mobileNumber;
+//    private String mobileNumber;
+    private String phoneNumber;
     private String signature;
     private List<Long> roles;
 
 
     private Long departmentId;
     private String departmentName;
+
+    private Boolean active;
 }

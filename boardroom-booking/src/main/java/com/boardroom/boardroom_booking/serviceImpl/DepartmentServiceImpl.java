@@ -39,6 +39,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new RuntimeException("Department not found with id: " + id));
 
         existingDepartment.setName(department.getName());
+        existingDepartment.setDescription(department.getDescription());
 
         return departmentRepository.save(existingDepartment);
     }
